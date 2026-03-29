@@ -53,11 +53,6 @@ namespace AdmissionCommittee
             }
         }
 
-        private void SchoolMagazineForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void Students()
         {
             students.Add(new Student
@@ -130,10 +125,16 @@ namespace AdmissionCommittee
 
             var student = (Student)dataGridView1.CurrentRow.DataBoundItem;
 
-
-            using (var editForm = new StudentEditForm(student))
+            if (student == null)
             {
-                var result = editForm.ShowDialog();
+                MessageBox.Show("Выберите студента для редактирования!", "Внимание!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var studentForm = new StudentForm(student))
+            {
+                var result = studentForm.ShowDialog();
 
                 if (result == DialogResult.OK)
                 {
@@ -144,36 +145,25 @@ namespace AdmissionCommittee
 
                     MessageBox.Show("Редактирование успешно!");
                 }
-                else
-                {
-                    MessageBox.Show("Ошибка редактирования");
-                }
             }
         }
 
         private void btnAdd_Click(object? sender, EventArgs e)
         {
-            using (var addForm = new StudentAddForm())
+            using (var studentForm = new StudentForm())
             {
-                var result = addForm.ShowDialog();
+                var result = studentForm.ShowDialog();
 
-                if (result == DialogResult.OK)
+                if (result == DialogResult.OK && studentForm.ResultStudent != null)
                 {
-                    if (addForm.NewStudent != null)
-                    {
-                        students.Add(addForm.NewStudent);
+                    students.Add(studentForm.ResultStudent);
 
-                        dataGridView1.DataSource = null;
-                        dataGridView1.DataSource = students;
+                    dataGridView1.DataSource = null;
+                    dataGridView1.DataSource = students;
 
-                        UpdateStatistics();
+                    UpdateStatistics();
 
-                        MessageBox.Show("Студент добавлен!");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Ошибка добавления");
-                    }
+                    MessageBox.Show("Студент добавлен!");
                 }
             }
         }

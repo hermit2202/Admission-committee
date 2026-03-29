@@ -1,6 +1,6 @@
 namespace AdmissionCommittee
 {
-    partial class StudentAddForm
+    partial class StudentForm
     {
         /// <summary>
         /// Required designer variable.
