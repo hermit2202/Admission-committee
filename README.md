@@ -1,1 +1,1 @@
-# Admission committee
+# Мансимов Георгий Андреевич, ИП-24-4, Задание: DataGridView(DGV)
