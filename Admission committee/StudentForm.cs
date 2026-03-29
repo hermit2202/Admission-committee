@@ -1,21 +1,23 @@
+using System.ComponentModel;
+
 namespace AdmissionCommittee
 {
     public partial class StudentForm : Form
     {
-        private readonly Student? student;
+        private Student? student;
         private readonly ErrorProvider errorProvider;
+        private BindingSource? bindingSource;
 
         public StudentForm()
         {
             InitializeComponent();
-
             errorProvider = new ErrorProvider
             {
                 BlinkStyle = ErrorBlinkStyle.NeverBlink,
                 ContainerControl = this
             };
-
             InitializeForm();
+            CreateNewStudent();
         }
 
         public StudentForm(Student student) : this()
@@ -24,7 +26,7 @@ namespace AdmissionCommittee
             LoadStudentData();
         }
 
-        public Student? ResultStudent { get; private set; }
+        public Student? ResultStudent => student;
 
         private void InitializeForm()
         {
@@ -33,19 +35,26 @@ namespace AdmissionCommittee
             btnSave.Click += save_Click;
             btnCancel.Click += cancel_Click;
 
-            txtFullName.TextChanged += (s, e) => errorProvider.SetError(txtFullName, null);
-            cmbGender.SelectedIndexChanged += (s, e) => errorProvider.SetError(cmbGender, null);
-            dtpDateBirth.ValueChanged += (s, e) => errorProvider.SetError(dtpDateBirth, null);
-            cmbFormOfEducation.SelectedIndexChanged += (s, e) => errorProvider.SetError(cmbFormOfEducation, null);
-            nudMathScores.ValueChanged += (s, e) => errorProvider.SetError(nudMathScores, null);
-            nudRusScores.ValueChanged += (s, e) => errorProvider.SetError(nudRusScores, null);
-            nudComputerScienceScores.ValueChanged += (s, e) => errorProvider.SetError(nudComputerScienceScores, null);
-
             cmbGender.Items.Clear();
             cmbGender.Items.AddRange(new[] { "Мужской", "Женский" });
 
             cmbFormOfEducation.Items.Clear();
             cmbFormOfEducation.Items.AddRange(new[] { "Очное", "Очно-заочное", "Заочное" });
+
+            txtFullName.Validating += txtFullName_Validating;
+            dtpDateBirth.Validating += dtpDateBirth_Validating;
+            nudMathScores.Validating += nudScores_Validating;
+            nudRusScores.Validating += nudScores_Validating;
+            nudComputerScienceScores.Validating += nudScores_Validating;
+        }
+
+        private void CreateNewStudent()
+        {
+            student = new Student
+            {
+                DateBirth = DateTime.Now.AddYears(-18)
+            };
+            SetupDataBindings();
         }
 
         private void LoadStudentData()
@@ -56,49 +65,71 @@ namespace AdmissionCommittee
             }
 
             Text = "Редактирование студента";
-
-            txtFullName.Text = student.FullName;
-            cmbGender.SelectedItem = student.Gender == "М" ? "Мужской" : "Женский";
-            dtpDateBirth.Value = student.DateBirth;
-            cmbFormOfEducation.SelectedItem = student.FormOfEducation;
-            nudMathScores.Value = student.MathScores;
-            nudRusScores.Value = student.RusScores;
-            nudComputerScienceScores.Value = student.ComputerScienceScores;
+            SetupDataBindings();
         }
 
-        private void save_Click(object? sender, EventArgs e)
+        private void SetupDataBindings()
         {
-            bool isValid = true;
+            if (student == null)
+            {
+                return;
+            }
 
+            bindingSource = new BindingSource { DataSource = student };
+
+            txtFullName.DataBindings.Clear();
+            txtFullName.DataBindings.Add("Text", bindingSource, "FullName", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+
+            cmbGender.DataBindings.Clear();
+            cmbGender.DataBindings.Add("SelectedItem", bindingSource, "Gender", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+
+            dtpDateBirth.DataBindings.Clear();
+            dtpDateBirth.DataBindings.Add("Value", bindingSource, "DateBirth", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+
+            cmbFormOfEducation.DataBindings.Clear();
+            cmbFormOfEducation.DataBindings.Add("SelectedItem", bindingSource, "FormOfEducation", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+
+            nudMathScores.DataBindings.Clear();
+            nudMathScores.DataBindings.Add("Value", bindingSource, "MathScores", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+
+            nudRusScores.DataBindings.Clear();
+            nudRusScores.DataBindings.Add("Value", bindingSource, "RusScores", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+
+            nudComputerScienceScores.DataBindings.Clear();
+            nudComputerScienceScores.DataBindings.Add("Value", bindingSource, "ComputerScienceScores", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+        }
+
+        private void txtFullName_Validating(object? sender, CancelEventArgs e)
+        {
             if (string.IsNullOrWhiteSpace(txtFullName.Text))
             {
                 errorProvider.SetError(txtFullName, "Введите ФИО студента");
-                isValid = false;
+                e.Cancel = true;
             }
             else if (txtFullName.Text.Trim().Length < 3)
             {
                 errorProvider.SetError(txtFullName, "ФИО должно содержать минимум 3 символа");
-                isValid = false;
+                e.Cancel = true;
             }
             else
             {
                 errorProvider.SetError(txtFullName, null);
             }
+        }
 
-            if (cmbGender.SelectedItem == null)
-            {
-                errorProvider.SetError(cmbGender, "Выберите пол студента");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(cmbGender, null);
-            }
-
+        private void dtpDateBirth_Validating(object? sender, CancelEventArgs e)
+        {
             if (dtpDateBirth.Value > DateTime.Now)
             {
                 errorProvider.SetError(dtpDateBirth, "Дата рождения не может быть в будущем");
-                isValid = false;
+                e.Cancel = true;
             }
             else
             {
@@ -111,55 +142,34 @@ namespace AdmissionCommittee
                 if (age < 10 || age > 100)
                 {
                     errorProvider.SetError(dtpDateBirth, $"Возраст должен быть от 10 до 100 лет (сейчас: {age})");
-                    isValid = false;
+                    e.Cancel = true;
                 }
                 else
                 {
                     errorProvider.SetError(dtpDateBirth, null);
                 }
             }
+        }
 
-            if (cmbFormOfEducation.SelectedItem == null)
+        private void nudScores_Validating(object? sender, CancelEventArgs e)
+        {
+            if (sender is NumericUpDown nud)
             {
-                errorProvider.SetError(cmbFormOfEducation, "Выберите форму обучения");
-                isValid = false;
+                if (nud.Value < 0 || nud.Value > 100)
+                {
+                    errorProvider.SetError(nud, "Балл должен быть от 0 до 100");
+                    e.Cancel = true;
+                }
+                else
+                {
+                    errorProvider.SetError(nud, null);
+                }
             }
-            else
-            {
-                errorProvider.SetError(cmbFormOfEducation, null);
-            }
+        }
 
-            if (nudMathScores.Value < 0 || nudMathScores.Value > 100)
-            {
-                errorProvider.SetError(nudMathScores, "Балл должен быть от 0 до 100");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(nudMathScores, null);
-            }
-
-            if (nudRusScores.Value < 0 || nudRusScores.Value > 100)
-            {
-                errorProvider.SetError(nudRusScores, "Балл должен быть от 0 до 100");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(nudRusScores, null);
-            }
-
-            if (nudComputerScienceScores.Value < 0 || nudComputerScienceScores.Value > 100)
-            {
-                errorProvider.SetError(nudComputerScienceScores, "Балл должен быть от 0 до 100");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(nudComputerScienceScores, null);
-            }
-
-            if (!isValid)
+        private void save_Click(object? sender, EventArgs e)
+        {
+            if (!ValidateChildren(ValidationConstraints.Enabled))
             {
                 MessageBox.Show(
                     "Исправьте ошибки валидации!",
@@ -172,28 +182,9 @@ namespace AdmissionCommittee
 
             if (student == null)
             {
-                ResultStudent = new Student
-                {
-                    FullName = txtFullName.Text.Trim(),
-                    Gender = cmbGender.SelectedItem.ToString() == "Мужской" ? "М" : "Ж",
-                    DateBirth = dtpDateBirth.Value,
-                    FormOfEducation = cmbFormOfEducation.SelectedItem.ToString() ?? "Очное",
-                    MathScores = (int)nudMathScores.Value,
-                    RusScores = (int)nudRusScores.Value,
-                    ComputerScienceScores = (int)nudComputerScienceScores.Value,
-                };
-            }
-            else
-            {
-                student.FullName = txtFullName.Text.Trim();
-                student.Gender = cmbGender.SelectedItem.ToString() == "Мужской" ? "М" : "Ж";
-                student.DateBirth = dtpDateBirth.Value;
-                student.FormOfEducation = cmbFormOfEducation.SelectedItem.ToString() ?? "Очное";
-                student.MathScores = (int)nudMathScores.Value;
-                student.RusScores = (int)nudRusScores.Value;
-                student.ComputerScienceScores = (int)nudComputerScienceScores.Value;
-
-                ResultStudent = student;
+                MessageBox.Show("Ошибка создания студента!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
             DialogResult = DialogResult.OK;
