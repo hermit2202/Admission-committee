@@ -1,3 +1,12 @@
 <Solution>
-  <Project Path="Admission committee/Admission committee.csproj" />
+  <Folder Name="/BL/">
+    <Project Path="BL/AdmissionCommittee.Services.Contracts/AdmissionCommittee.Services.Contracts.csproj" />
+    <Project Path="BL/AdmissionCommittee.Services/AdmissionCommittee.Services.csproj" />
+  </Folder>
+  <Folder Name="/DAL/">
+    <Project Path="DAL/AdmissionCommittee.Storage.Contracts/AdmissionCommittee.Storage.Contracts.csproj" />
+    <Project Path="DAL/AdmissionCommittee.Storage.InMemory/AdmissionCommittee.Storage.InMemory.csproj" />
+  </Folder>
+  <Project Path="AdmissionCommittee.Desktop/AdmissionCommittee.Desktop.csproj" />
+  <Project Path="AdmissionCommittee.Models/AdmissionCommittee.Models.csproj" Id="ec8f70ab-7e54-47ce-875e-741d85c4d2a8" />
 </Solution>

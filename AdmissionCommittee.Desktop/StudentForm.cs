@@ -1,6 +1,7 @@
 using System.ComponentModel;
+using AdmissionCommittee.Models;
 
-namespace AdmissionCommittee
+namespace AdmissionCommittee.Desktop
 {
     public partial class StudentForm : Form
     {

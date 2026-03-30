@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AdmissionCommittee.Models\AdmissionCommittee.Models.csproj" />
+    <ProjectReference Include="..\..\DAL\AdmissionCommittee.Storage.Contracts\AdmissionCommittee.Storage.Contracts.csproj" />
+    <ProjectReference Include="..\AdmissionCommittee.Services.Contracts\AdmissionCommittee.Services.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

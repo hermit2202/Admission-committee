@@ -1,10 +1,12 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AdmissionCommittee
+namespace AdmissionCommittee.Models
 {
-    public class Student
+    public class Student : INotifyPropertyChanged
     {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+
         private string fullName = string.Empty;
         private string gender = "М";
         private DateTime dateBirth;
@@ -64,21 +66,39 @@ namespace AdmissionCommittee
         public int MathScores
         {
             get => mathScores;
-            set => SetProperty(ref mathScores, value);
+            set
+            {
+                if (SetProperty(ref mathScores, value))
+                {
+                    OnPropertyChanged(nameof(TotalScore));
+                }
+            }
         }
 
         [DisplayName("Баллы ЕГЭ по русскому")]
         public int RusScores
         {
             get => rusScores;
-            set => SetProperty(ref rusScores, value);
+            set
+            {
+                if (SetProperty(ref rusScores, value))
+                {
+                    OnPropertyChanged(nameof(TotalScore));
+                }
+            }
         }
 
         [DisplayName("Баллы ЕГЭ по информатике")]
         public int ComputerScienceScores
         {
             get => computerScienceScores;
-            set => SetProperty(ref computerScienceScores, value);
+            set
+            {
+                if (SetProperty(ref computerScienceScores, value))
+                {
+                    OnPropertyChanged(nameof(TotalScore));
+                }
+            }
         }
 
         [DisplayName("Сумма баллов")]

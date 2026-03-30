@@ -1,4 +1,4 @@
-namespace AdmissionCommittee
+namespace AdmissionCommittee.Desktop
 {
     partial class StudentForm
     {
