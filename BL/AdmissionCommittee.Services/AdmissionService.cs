@@ -1,23 +1,44 @@
-﻿using AdmissionCommittee.Models;
+using AdmissionCommittee.Models;
 using AdmissionCommittee.Services.Contracts;
 using AdmissionCommittee.Storage.Contracts;
 
 namespace AdmissionCommittee.Services
 {
+    /// <summary>
+    /// Сервис управления приёмной комиссией.
+    /// Реализует бизнес-логику для работы с абитуриентами.
+    /// </summary>
+    /// <remarks>
+    /// Класс реализует интерфейс <see cref="IAdmissionService"/>
+    /// и использует хранилище <see cref="IStudentStorage"/> для доступа к данным.
+    /// Все операции проходят валидацию через <see cref="ValidateStudent"/>.
+    /// </remarks>
     public class AdmissionService : IAdmissionService
     {
-        private readonly IStudentStorage _storage;
+        private readonly IStudentStorage storage;
 
+        /// <summary>
+        /// Инициализирует новый экземпляр <see cref="AdmissionService"/>.
+        /// </summary>
+        /// <param name="storage">
+        /// Хранилище данных, реализующее <see cref="IStudentStorage"/>.
+        /// </param>
         public AdmissionService(IStudentStorage storage)
         {
-            _storage = storage;
+            this.storage = storage;
         }
 
+        /// <inheritdoc/>
         public IEnumerable<Student> GetAllStudents()
         {
-            return _storage.GetAll();
+            return storage.GetAll();
         }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Перед добавлением вызывает <see cref="ValidateStudent"/>.
+        /// При ошибке валидации бросает <see cref="ArgumentException"/>.
+        /// </remarks>
         public void AddStudent(Student student)
         {
             if (!ValidateStudent(student, out var errorMessage))
@@ -25,9 +46,14 @@ namespace AdmissionCommittee.Services
                 throw new ArgumentException(errorMessage);
             }
 
-            _storage.Add(student);
+            storage.Add(student);
         }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Перед обновлением вызывает <see cref="ValidateStudent"/>.
+        /// Бросает <see cref="KeyNotFoundException"/>, если студент с таким ID не найден.
+        /// </remarks>
         public void UpdateStudent(Student student)
         {
             if (!ValidateStudent(student, out var errorMessage))
@@ -35,35 +61,49 @@ namespace AdmissionCommittee.Services
                 throw new ArgumentException(errorMessage);
             }
 
-            _storage.Update(student);
+            storage.Update(student);
         }
 
+        /// <inheritdoc/>
         public void DeleteStudent(string id)
         {
-            _storage.Delete(id);
+            storage.Delete(id);
         }
 
-        public string GetStatistics()
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Формат строки: <c>"Всего: {n} | > 150 баллов: {m} | Средний: {avg} | Худший: {min} | Лучший: {max}"</c>
+        /// Пороговое значение (150 баллов) жёстко задано.
+        /// </remarks>
+        public StudentStatistic GetStatistics()
         {
-            int totalCount = _storage.GetTotalCount();
-
+            int totalCount = storage.GetTotalCount();
             if (totalCount == 0)
             {
-                return "Нет данных";
+                return StudentStatistic.Empty;
             }
 
-            int passedCount = _storage.GetPassedCount(150);
-            double averageScore = _storage.GetAverageScore();
-            int maxScore = _storage.GetAll().Max(s => s.TotalScore);
-            int minScore = _storage.GetAll().Min(s => s.TotalScore);
-
-            return $"Всего: {totalCount} | " +
-                   $"> 150 баллов: {passedCount} | " +
-                   $"Средний: {averageScore:F1} | " +
-                   $"Худший: {minScore} | " +
-                   $"Лучший: {maxScore}";
+            return new StudentStatistic
+            {
+                TotalCount = totalCount,
+                PassedCount = storage.GetPassedCount(150),
+                AverageScore = storage.GetAverageScore(),
+                MaxScore = storage.GetAll().Max(s => s.TotalScore),
+                MinScore = storage.GetAll().Min(s => s.TotalScore),
+                Threshold = ValidationConstants.PassThreshold,
+            };
         }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Проверяемые правила:
+        /// <list type="bullet">
+        /// <item>ФИО: не пустое, минимум 3 символа</item>
+        /// <item>Дата рождения: не в будущем, возраст 10–100 лет</item>
+        /// <item>Баллы ЕГЭ: диапазон 0–100 для каждого предмета</item>
+        /// </list>
+        /// Метод не бросает исключения — возвращает результат через <paramref name="errorMessage"/>.
+        /// </remarks>
         public bool ValidateStudent(Student student, out string errorMessage)
         {
             errorMessage = string.Empty;
@@ -74,25 +114,28 @@ namespace AdmissionCommittee.Services
                 return false;
             }
 
-            if (student.FullName.Trim().Length < 3)
+            if (student.FullName.Trim().Length < ValidationConstants.MinFullNameLength)
             {
                 errorMessage = "ФИО должно содержать минимум 3 символа";
                 return false;
             }
 
-            if (student.MathScores < 0 || student.MathScores > 100)
+            if (student.MathScores < ValidationConstants.MinScore
+                || student.MathScores > ValidationConstants.MaxScore)
             {
                 errorMessage = "Балл по математике должен быть от 0 до 100";
                 return false;
             }
 
-            if (student.RusScores < 0 || student.RusScores > 100)
+            if (student.RusScores < ValidationConstants.MinScore
+                || student.RusScores > ValidationConstants.MaxScore)
             {
                 errorMessage = "Балл по русскому языку должен быть от 0 до 100";
                 return false;
             }
 
-            if (student.ComputerScienceScores < 0 || student.ComputerScienceScores > 100)
+            if (student.ComputerScienceScores < ValidationConstants.MinScore
+                || student.ComputerScienceScores > ValidationConstants.MaxScore)
             {
                 errorMessage = "Балл по информатике должен быть от 0 до 100";
                 return false;
@@ -110,7 +153,7 @@ namespace AdmissionCommittee.Services
                 age--;
             }
 
-            if (age < 10 || age > 100)
+            if (age < ValidationConstants.MinAge || age > ValidationConstants.MaxAge)
             {
                 errorMessage = $"Возраст должен быть от 10 до 100 лет (сейчас: {age})";
                 return false;

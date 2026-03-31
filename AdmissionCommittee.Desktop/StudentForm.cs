@@ -3,12 +3,19 @@ using AdmissionCommittee.Models;
 
 namespace AdmissionCommittee.Desktop
 {
+    /// <summary>
+    /// Форма для добавления и редактирования данных абитуриента.
+    /// Предоставляет интерфейс ввода с валидацией и DataBinding к модели <see cref="Student"/>.
+    /// </summary>
     public partial class StudentForm : Form
     {
         private Student? student;
         private readonly ErrorProvider errorProvider;
         private BindingSource? bindingSource;
 
+        /// <summary>
+        /// Инициализирует новый экземпляр <see cref="StudentForm"/> для создания студента.
+        /// </summary>
         public StudentForm()
         {
             InitializeComponent();
@@ -21,12 +28,25 @@ namespace AdmissionCommittee.Desktop
             CreateNewStudent();
         }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр <see cref="StudentForm"/> для редактирования существующего студента.
+        /// </summary>
+        /// <param name="student">
+        /// Объект <see cref="Student"/> с данными для редактирования.
+        /// </param>
         public StudentForm(Student student) : this()
         {
             this.student = student;
             LoadStudentData();
         }
 
+        /// <summary>
+        /// Возвращает результат работы формы — объект студента с заполненными данными,
+        /// или <c>null</c>, если форма была закрыта с отменой.
+        /// </summary>
+        /// <value>
+        /// Объект <see cref="Student"/> или <c>null</c>.
+        /// </value>
         public Student? ResultStudent => student;
 
         private void InitializeForm()
@@ -37,7 +57,7 @@ namespace AdmissionCommittee.Desktop
             btnCancel.Click += cancel_Click;
 
             cmbGender.Items.Clear();
-            cmbGender.Items.AddRange(new[] { "Мужской", "Женский" });
+            cmbGender.Items.AddRange(Gender.GetAll().ToArray());
 
             cmbFormOfEducation.Items.Clear();
             cmbFormOfEducation.Items.AddRange(new[] { "Очное", "Очно-заочное", "Заочное" });
@@ -53,7 +73,7 @@ namespace AdmissionCommittee.Desktop
         {
             student = new Student
             {
-                DateBirth = DateTime.Now.AddYears(-18)
+                DateBirth = DateTime.Now.AddYears(-ValidationConstants.DefaultStudentAge)
             };
             SetupDataBindings();
         }
@@ -114,7 +134,7 @@ namespace AdmissionCommittee.Desktop
                 errorProvider.SetError(txtFullName, "Введите ФИО студента");
                 e.Cancel = true;
             }
-            else if (txtFullName.Text.Trim().Length < 3)
+            else if (txtFullName.Text.Trim().Length < ValidationConstants.MinFullNameLength)
             {
                 errorProvider.SetError(txtFullName, "ФИО должно содержать минимум 3 символа");
                 e.Cancel = true;
@@ -140,7 +160,7 @@ namespace AdmissionCommittee.Desktop
                     age--;
                 }
 
-                if (age < 10 || age > 100)
+                if (age < ValidationConstants.MinAge || age > ValidationConstants.MaxAge)
                 {
                     errorProvider.SetError(dtpDateBirth, $"Возраст должен быть от 10 до 100 лет (сейчас: {age})");
                     e.Cancel = true;
@@ -156,7 +176,7 @@ namespace AdmissionCommittee.Desktop
         {
             if (sender is NumericUpDown nud)
             {
-                if (nud.Value < 0 || nud.Value > 100)
+                if (nud.Value < ValidationConstants.MinScore || nud.Value > ValidationConstants.MaxScore)
                 {
                     errorProvider.SetError(nud, "Балл должен быть от 0 до 100");
                     e.Cancel = true;

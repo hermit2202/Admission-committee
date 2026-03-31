@@ -5,18 +5,29 @@ using AdmissionCommittee.Services.Contracts;
 namespace AdmissionCommittee.Desktop
 {
     /// <summary>
-    /// 
+    /// Главная форма приложения «Приёмная комиссия».
     /// </summary>
+    /// <remarks>
+    /// Форма использует <see cref="BindingList{T}"/> для автоматического
+    /// обновления <see cref="DataGridView"/> при изменении коллекции студентов.
+    /// </remarks>
     public partial class AdmissionCommitteeForm : Form
     {
+        private const int ExcellentThreshold = 250;
+        private const int GoodThreshold = 200;
+        private const int BarMargin = 2;
+        private const int BarHeightCorrection = 1;
+
         private readonly IAdmissionService service;
         private BindingList<Student> students;
 
-
         /// <summary>
-        /// 
+        /// Инициализирует новый экземпляр <see cref="AdmissionCommitteeForm"/>.
         /// </summary>
-        /// <param name="service"></param>
+        /// <param name="service">
+        /// Сервис бизнес-логики, реализующий <see cref="IAdmissionService"/>,
+        /// для выполнения операций CRUD и получения статистики.
+        /// </param>
         public AdmissionCommitteeForm(IAdmissionService service)
         {
             InitializeComponent();
@@ -100,7 +111,8 @@ namespace AdmissionCommittee.Desktop
             }
 
             var result = MessageBox.Show(
-                $"Вы действительно хотите удалить студента?\n\n{student.FullName}\nДата рождения: {student.DateBirth:dd.MM.yyyy}",
+                $"Вы действительно хотите удалить студента?\n\n{student.FullName}\n" +
+                $"Дата рождения: {student.DateBirth:dd.MM.yyyy}",
                 "Подтверждение удаления",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -125,7 +137,8 @@ namespace AdmissionCommittee.Desktop
 
         private void UpdateStatistics()
         {
-            toolStripStatusLabel1.Text = service.GetStatistics();
+            StudentStatistic stats = service.GetStatistics();
+            toolStripStatusLabel1.Text = stats.ToString();
         }
 
         private void DataGridView1_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
@@ -139,19 +152,19 @@ namespace AdmissionCommittee.Desktop
                 var student = (Student)dataGridView1.Rows[e.RowIndex].DataBoundItem!;
                 int grade = student.TotalScore;
 
-                var maxGrade = 300.0f;
-                var ratio = Math.Clamp(grade / maxGrade, 0, 1);
+                var ratio = Math.Clamp(grade / (float)ValidationConstants.MaxTotalScore, 0, 1);
 
-                var margin = 2;
-                var barWidth = (int)((e.CellBounds.Width - (margin * 2)) * ratio);
+                var barWidth = (int)((e.CellBounds.Width - (BarMargin * 2)) * ratio);
                 var barRect = new Rectangle(
-                    e.CellBounds.X + margin,
-                    e.CellBounds.Y + margin,
+                    e.CellBounds.X + BarMargin,
+                    e.CellBounds.Y + BarMargin,
                     barWidth,
-                    e.CellBounds.Height - (margin * 2) - 1
+                    e.CellBounds.Height - (BarMargin * 2) - BarHeightCorrection
                 );
 
-                Color barColor = grade >= 250 ? Color.Green : (grade >= 200 ? Color.Yellow : Color.Coral);
+                Color barColor = grade >= ExcellentThreshold
+                    ? Color.Green
+                    : (grade >= GoodThreshold ? Color.Yellow : Color.Coral);
 
                 using (SolidBrush brush = new SolidBrush(barColor))
                 {

@@ -48,7 +48,8 @@ namespace AdmissionCommittee.Desktop
             statusStrip1.Items.AddRange(new ToolStripItem[] { btnAdd, btnEdit, btnDelete });
             statusStrip1.Location = new Point(0, 0);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1264, 31);
+            statusStrip1.Padding = new Padding(1, 0, 10, 0);
+            statusStrip1.Size = new Size(885, 30);
             statusStrip1.TabIndex = 0;
             statusStrip1.Text = "statusStrip1";
             // 
@@ -58,7 +59,7 @@ namespace AdmissionCommittee.Desktop
             btnAdd.Image = (Image)resources.GetObject("btnAdd.Image");
             btnAdd.ImageTransparentColor = Color.Magenta;
             btnAdd.Name = "btnAdd";
-            btnAdd.Size = new Size(42, 28);
+            btnAdd.Size = new Size(37, 28);
             btnAdd.Text = "toolStripDropDownButton1";
             // 
             // btnEdit
@@ -67,7 +68,7 @@ namespace AdmissionCommittee.Desktop
             btnEdit.Image = (Image)resources.GetObject("btnEdit.Image");
             btnEdit.ImageTransparentColor = Color.Magenta;
             btnEdit.Name = "btnEdit";
-            btnEdit.Size = new Size(42, 28);
+            btnEdit.Size = new Size(37, 28);
             btnEdit.Text = "toolStripDropDownButton2";
             // 
             // btnDelete
@@ -76,43 +77,48 @@ namespace AdmissionCommittee.Desktop
             btnDelete.Image = (Image)resources.GetObject("btnDelete.Image");
             btnDelete.ImageTransparentColor = Color.Magenta;
             btnDelete.Name = "btnDelete";
-            btnDelete.Size = new Size(42, 28);
+            btnDelete.Size = new Size(37, 28);
             btnDelete.Text = "toolStripDropDownButton3";
             // 
             // dataGridView1
             // 
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(0, 39);
+            dataGridView1.Dock = DockStyle.Fill;
+            dataGridView1.Location = new Point(0, 23);
+            dataGridView1.Margin = new Padding(2, 2, 2, 2);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.ReadOnly = true;
             dataGridView1.RowHeadersWidth = 62;
-            dataGridView1.Size = new Size(1263, 376);
+            dataGridView1.Size = new Size(884, 226);
             dataGridView1.TabIndex = 1;
             // 
             // statusStrip2
             // 
             statusStrip2.ImageScalingSize = new Size(24, 24);
             statusStrip2.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
-            statusStrip2.Location = new Point(0, 418);
+            statusStrip2.Location = new Point(0, 248);
             statusStrip2.Name = "statusStrip2";
-            statusStrip2.Size = new Size(1264, 32);
+            statusStrip2.Padding = new Padding(1, 0, 10, 0);
+            statusStrip2.Size = new Size(885, 22);
             statusStrip2.TabIndex = 2;
             statusStrip2.Text = "statusStrip2";
             // 
             // toolStripStatusLabel1
             // 
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(179, 25);
+            toolStripStatusLabel1.Size = new Size(118, 17);
             toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // AdmissionCommitteeForm
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1264, 450);
+            ClientSize = new Size(885, 270);
             Controls.Add(statusStrip2);
             Controls.Add(dataGridView1);
             Controls.Add(statusStrip1);
+            Margin = new Padding(2, 2, 2, 2);
             Name = "AdmissionCommitteeForm";
             Text = "Приёмная комиссия";
             statusStrip1.ResumeLayout(false);
