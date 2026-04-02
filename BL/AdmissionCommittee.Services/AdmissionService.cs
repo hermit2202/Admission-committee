@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using AdmissionCommittee.Models;
 using AdmissionCommittee.Services.Contracts;
 using AdmissionCommittee.Storage.Contracts;
@@ -41,11 +42,7 @@ namespace AdmissionCommittee.Services
         /// </remarks>
         public void AddStudent(Student student)
         {
-            if (!ValidateStudent(student, out var errorMessage))
-            {
-                throw new ArgumentException(errorMessage);
-            }
-
+            ValidateStudent(student);
             storage.Add(student);
         }
 
@@ -56,12 +53,18 @@ namespace AdmissionCommittee.Services
         /// </remarks>
         public void UpdateStudent(Student student)
         {
-            if (!ValidateStudent(student, out var errorMessage))
-            {
-                throw new ArgumentException(errorMessage);
-            }
+            ValidateStudent(student);
 
-            storage.Update(student);
+            try
+            {
+                storage.Update(student);
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new InvalidOperationException(
+                    $"Не удалось обновить студента: запись с Id={student.Id} не найдена.",
+                    null);
+            }
         }
 
         /// <inheritdoc/>
@@ -94,60 +97,28 @@ namespace AdmissionCommittee.Services
             };
         }
 
-        /// <inheritdoc/>
-        /// <remarks>
-        /// Проверяемые правила:
-        /// <list type="bullet">
-        /// <item>ФИО: не пустое, минимум 3 символа</item>
-        /// <item>Дата рождения: не в будущем, возраст 10–100 лет</item>
-        /// <item>Баллы ЕГЭ: диапазон 0–100 для каждого предмета</item>
-        /// </list>
-        /// Метод не бросает исключения — возвращает результат через <paramref name="errorMessage"/>.
-        /// </remarks>
-        public bool ValidateStudent(Student student, out string errorMessage)
+        private void ValidateStudent(Student student)
         {
-            errorMessage = string.Empty;
+            var context = new ValidationContext(student);
+            var results = new List<ValidationResult>();
 
-            if (string.IsNullOrWhiteSpace(student.FullName))
+            ValidateAge(student);
+
+            if (!Validator.TryValidateObject(student, context, results, validateAllProperties: true))
             {
-                errorMessage = "ФИО обязательно для заполнения";
-                return false;
+                var errors = string.Join("; ", results.Select(r => r.ErrorMessage));
+                throw new ArgumentException(errors);
             }
+        }
 
-            if (student.FullName.Trim().Length < ValidationConstants.MinFullNameLength)
-            {
-                errorMessage = "ФИО должно содержать минимум 3 символа";
-                return false;
-            }
-
-            if (student.MathScores < ValidationConstants.MinScore
-                || student.MathScores > ValidationConstants.MaxScore)
-            {
-                errorMessage = "Балл по математике должен быть от 0 до 100";
-                return false;
-            }
-
-            if (student.RusScores < ValidationConstants.MinScore
-                || student.RusScores > ValidationConstants.MaxScore)
-            {
-                errorMessage = "Балл по русскому языку должен быть от 0 до 100";
-                return false;
-            }
-
-            if (student.ComputerScienceScores < ValidationConstants.MinScore
-                || student.ComputerScienceScores > ValidationConstants.MaxScore)
-            {
-                errorMessage = "Балл по информатике должен быть от 0 до 100";
-                return false;
-            }
-
+        private void ValidateAge(Student student)
+        {
             if (student.DateBirth > DateTime.Now)
             {
-                errorMessage = "Дата рождения не может быть в будущем";
-                return false;
+                throw new ArgumentException("Дата рождения не может быть в будущем");
             }
 
-            int age = DateTime.Now.Year - student.DateBirth.Year;
+            var age = DateTime.Now.Year - student.DateBirth.Year;
             if (student.DateBirth.Date > DateTime.Now.AddYears(-age))
             {
                 age--;
@@ -155,11 +126,10 @@ namespace AdmissionCommittee.Services
 
             if (age < ValidationConstants.MinAge || age > ValidationConstants.MaxAge)
             {
-                errorMessage = $"Возраст должен быть от 10 до 100 лет (сейчас: {age})";
-                return false;
+                throw new ArgumentException(
+                    $"Возраст должен быть от {ValidationConstants.MinAge} до " +
+                    $"{ValidationConstants.MaxAge} лет (сейчас: {age})");
             }
-
-            return true;
         }
     }
 }

@@ -25,7 +25,6 @@ namespace AdmissionCommittee.Models
         /// Количество абитуриентов, набравших сумму баллов выше порогового значения.
         /// </summary>
         /// <value>Неотрицательное целое число, не превышающее <see cref="TotalCount"/>.</value>
-        /// <seealso cref="Threshold"/>
         [DisplayName("Прошли порог")]
         public int PassedCount { get; set; }
 

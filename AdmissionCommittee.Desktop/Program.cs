@@ -5,10 +5,17 @@ using AdmissionCommittee.Storage.InMemory;
 
 namespace AdmissionCommittee.Desktop
 {
+    /// <summary>
+    /// Точка входа в приложение.
+    /// </summary>
     internal static class Program
     {
+
+        /// <summary>
+        /// Главная точка входа в приложение.
+        /// </summary>
         [STAThread]
-        static void Main()
+        public static void Main()
         {
             ApplicationConfiguration.Initialize();
 

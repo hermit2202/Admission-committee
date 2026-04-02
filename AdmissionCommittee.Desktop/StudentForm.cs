@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using AdmissionCommittee.Models;
 
 namespace AdmissionCommittee.Desktop
@@ -62,11 +63,11 @@ namespace AdmissionCommittee.Desktop
             cmbFormOfEducation.Items.Clear();
             cmbFormOfEducation.Items.AddRange(new[] { "Очное", "Очно-заочное", "Заочное" });
 
-            txtFullName.Validating += txtFullName_Validating;
-            dtpDateBirth.Validating += dtpDateBirth_Validating;
-            nudMathScores.Validating += nudScores_Validating;
-            nudRusScores.Validating += nudScores_Validating;
-            nudComputerScienceScores.Validating += nudScores_Validating;
+            txtFullName.Validating += Control_Validating;
+            dtpDateBirth.Validating += Control_Validating;
+            nudMathScores.Validating += Control_Validating;
+            nudRusScores.Validating += Control_Validating;
+            nudComputerScienceScores.Validating += Control_Validating;
         }
 
         private void CreateNewStudent()
@@ -127,65 +128,79 @@ namespace AdmissionCommittee.Desktop
                 DataSourceUpdateMode.OnPropertyChanged);
         }
 
-        private void txtFullName_Validating(object? sender, CancelEventArgs e)
+        private void Control_Validating(object? sender, CancelEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtFullName.Text))
+            if (sender is not Control control || student == null)
             {
-                errorProvider.SetError(txtFullName, "Введите ФИО студента");
-                e.Cancel = true;
+                return;
             }
-            else if (txtFullName.Text.Trim().Length < ValidationConstants.MinFullNameLength)
+
+            var propertyName = control.DataBindings[0]?.BindingMemberInfo.BindingField;
+            if (string.IsNullOrEmpty(propertyName))
             {
-                errorProvider.SetError(txtFullName, "ФИО должно содержать минимум 3 символа");
+                return;
+            }
+
+            var value = control switch
+            {
+                TextBox tb => tb.Text,
+                DateTimePicker dtp => dtp.Value,
+                NumericUpDown nud => (int)nud.Value,
+                ComboBox cb => cb.SelectedItem,
+                _ => null
+            };
+
+            var context = new ValidationContext(student) { MemberName = propertyName };
+            var results = new List<ValidationResult>();
+
+            if (propertyName == nameof(Student.DateBirth))
+            {
+                if (!ValidateAge((DateTime?)value, out var ageError))
+                {
+                    errorProvider.SetError(control, ageError);
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+            if (!Validator.TryValidateProperty(value, context, results))
+            {
+                errorProvider.SetError(control, results[0].ErrorMessage);
                 e.Cancel = true;
             }
             else
             {
-                errorProvider.SetError(txtFullName, null);
+                errorProvider.SetError(control, null);
             }
         }
 
-        private void dtpDateBirth_Validating(object? sender, CancelEventArgs e)
+        private bool ValidateAge(DateTime? dateBirth, out string errorMessage)
         {
-            if (dtpDateBirth.Value > DateTime.Now)
+            errorMessage = string.Empty;
+            if (dateBirth == null)
             {
-                errorProvider.SetError(dtpDateBirth, "Дата рождения не может быть в будущем");
-                e.Cancel = true;
+                return false;
             }
-            else
-            {
-                int age = DateTime.Now.Year - dtpDateBirth.Value.Year;
-                if (dtpDateBirth.Value.Date > DateTime.Now.AddYears(-age))
-                {
-                    age--;
-                }
 
-                if (age < ValidationConstants.MinAge || age > ValidationConstants.MaxAge)
-                {
-                    errorProvider.SetError(dtpDateBirth, $"Возраст должен быть от 10 до 100 лет (сейчас: {age})");
-                    e.Cancel = true;
-                }
-                else
-                {
-                    errorProvider.SetError(dtpDateBirth, null);
-                }
-            }
-        }
-
-        private void nudScores_Validating(object? sender, CancelEventArgs e)
-        {
-            if (sender is NumericUpDown nud)
+            if (dateBirth.Value > DateTime.Now)
             {
-                if (nud.Value < ValidationConstants.MinScore || nud.Value > ValidationConstants.MaxScore)
-                {
-                    errorProvider.SetError(nud, "Балл должен быть от 0 до 100");
-                    e.Cancel = true;
-                }
-                else
-                {
-                    errorProvider.SetError(nud, null);
-                }
+                errorMessage = "Дата рождения не может быть в будущем";
+                return false;
             }
+
+            var age = DateTime.Now.Year - dateBirth.Value.Year;
+            if (dateBirth.Value.Date > DateTime.Now.AddYears(-age))
+            {
+                age--;
+            }
+
+            if (age < ValidationConstants.MinAge || age > ValidationConstants.MaxAge)
+            {
+                errorMessage = $"Возраст должен быть от {ValidationConstants.MinAge} до {ValidationConstants.MaxAge} лет (сейчас: {age})";
+                return false;
+            }
+
+            return true;
         }
 
         private void save_Click(object? sender, EventArgs e)
