@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AdmissionCommittee.Models\AdmissionCommittee.Models.csproj" />
-    <ProjectReference Include="..\..\DAL\AdmissionCommittee.Storage.Contracts\AdmissionCommittee.Storage.Contracts.csproj" />
+    <PackageReference Include="AdmissionCommittee.Models" Version="1.0.0" />
     <ProjectReference Include="..\AdmissionCommittee.Services.Contracts\AdmissionCommittee.Services.Contracts.csproj" />
+    <ProjectReference Include="..\..\DAL\AdmissionCommittee.Storage.Contracts\AdmissionCommittee.Storage.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

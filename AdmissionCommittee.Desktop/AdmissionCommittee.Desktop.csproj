@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AdmissionCommittee.Models\AdmissionCommittee.Models.csproj" />
+    <PackageReference Include="AdmissionCommittee.Models" Version="1.0.0" />
     <ProjectReference Include="..\BL\AdmissionCommittee.Services.Contracts\AdmissionCommittee.Services.Contracts.csproj" />
     <ProjectReference Include="..\BL\AdmissionCommittee.Services\AdmissionCommittee.Services.csproj" />
     <ProjectReference Include="..\DAL\AdmissionCommittee.Storage.InMemory\AdmissionCommittee.Storage.InMemory.csproj" />
