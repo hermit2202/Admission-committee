@@ -1,4 +1,4 @@
-﻿using AdmissionCommittee.Models;
+using AdmissionCommittee.Models;
 
 namespace AdmissionCommittee.Storage.Contracts
 {
@@ -15,7 +15,6 @@ namespace AdmissionCommittee.Storage.Contracts
     /// <item>Возможна реализация для базы данных, файла или веб-сервиса</item>
     /// </list>
     /// </remarks>
-    /// <seealso cref="Services.AdmissionService"/>
     public interface IStudentStorage
     {
         IEnumerable<Student> GetAll();

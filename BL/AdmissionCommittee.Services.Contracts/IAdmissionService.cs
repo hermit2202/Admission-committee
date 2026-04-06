@@ -15,8 +15,6 @@ namespace AdmissionCommittee.Services.Contracts
     /// <item>Позволяет подменять реализацию для тестирования (Mock/DI)</item>
     /// </list>
     /// </remarks>
-    /// <seealso cref="AdmissionCommittee.Services.AdmissionService"/>
-    /// <seealso cref="IStudentStorage"/>
     public interface IAdmissionService
     {
         IEnumerable<Student> GetAllStudents();
@@ -28,7 +26,5 @@ namespace AdmissionCommittee.Services.Contracts
         void DeleteStudent(string id);
 
         StudentStatistic GetStatistics();
-
-        bool ValidateStudent(Student student, out string errorMessage);
     }
 }
