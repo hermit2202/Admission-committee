@@ -154,7 +154,7 @@ namespace AdmissionCommittee.Desktop
             }
             else
             {
-                int age = DateTime.Now.Year - dtpDateBirth.Value.Year;
+                var age = DateTime.Now.Year - dtpDateBirth.Value.Year;
                 if (dtpDateBirth.Value.Date > DateTime.Now.AddYears(-age))
                 {
                     age--;
