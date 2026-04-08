@@ -5,13 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>AdmissionCommittee.Models</RootNamespace>
-
     <PackageId>AdmissionCommittee.Models</PackageId>
     <Version>1.0.0</Version>
     <Authors>Hermit2202</Authors>
+    <Product>Admission-committee</Product>
+    <RepositoryUrl>https://github.com/hermit2202/Admission-committee</RepositoryUrl>
     <Description>Модели данных для системы приёмной комиссии (Student, Gender, StudentStatistic)</Description>
     <PackageTags>admission;models;student;education</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="build/icon.png" Pack="true" PackagePath="\" />
+    <None Include="build/README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  
 </Project>
