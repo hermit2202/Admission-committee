@@ -9,4 +9,5 @@
   </Folder>
   <Project Path="AdmissionCommittee.Desktop/AdmissionCommittee.Desktop.csproj" />
   <Project Path="AdmissionCommittee.Models/AdmissionCommittee.Models.csproj" Id="ec8f70ab-7e54-47ce-875e-741d85c4d2a8" />
+  <Project Path="AdmissionCommittee.Tests/AdmissionCommittee.Tests.csproj" Id="7f56cba4-6301-40df-b12d-fbfad846b3a5" />
 </Solution>
