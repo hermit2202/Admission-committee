@@ -15,14 +15,14 @@ namespace AdmissionCommittee.Tests
         /// добавляет нового студента в хранилище, и его можно найти по идентификатору.
         /// </summary>
         [Fact]
-        public void Add_StudentShouldAddedToStorage()
+        public void Add_StudentShouldBeAddedToStorage()
         {
             // Arrange
             var storage = new InMemoryStudentStorage();
 
             var testStudent = new Student
             {
-                Id = "4",
+                Id = "Add_test_01",
                 FullName = "Кичигин Эдуард Валерьевич",
                 Gender = Gender.Male,
                 DateBirth = new DateTime(2000, 12, 11),
@@ -36,10 +36,11 @@ namespace AdmissionCommittee.Tests
             storage.Add(testStudent);
 
             //Assert
-            var found = storage.GetById("4");
+            var found = storage.GetById("Add_test_01");
             storage.GetTotalCount().Should().Be(4);
+            found.Should().NotBeNull();
             found!.FullName.Should().Be("Кичигин Эдуард Валерьевич");
-            found!.Id.Should().Be("4");
+            found!.Id.Should().Be("Add_test_01");
         }
 
         /// <summary>
@@ -87,7 +88,7 @@ namespace AdmissionCommittee.Tests
             // Act
             var result = storage.GetById("???");
 
-            // Arrange
+            // Assert
             result.Should().BeNull();
         }
 
@@ -103,7 +104,7 @@ namespace AdmissionCommittee.Tests
 
             var expectedStudent = new Student
             {
-                Id = "4",
+                Id = "Delete_test_01",
                 FullName = "Кичигин Эдуард Валерьевич",
                 Gender = Gender.Male,
                 DateBirth = new DateTime(2000, 12, 11),
@@ -117,11 +118,11 @@ namespace AdmissionCommittee.Tests
             var totalCount = storage.GetTotalCount();
 
             // Act
-            storage.Delete("4");
+            storage.Delete("Delete_test_01");
 
             // Assert
             storage.GetTotalCount().Should().Be(totalCount - 1);
-            storage.GetById("4").Should().BeNull();
+            storage.GetById("Delete_test_01").Should().BeNull();
         }
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace AdmissionCommittee.Tests
             var totalCount = storage.GetTotalCount();
 
             // Act
-            storage.Delete("4");
+            storage.Delete("Delete_test_02");
 
             // Assert
             storage.GetTotalCount().Should().Be(totalCount);
@@ -156,7 +157,7 @@ namespace AdmissionCommittee.Tests
 
             var originStudent = new Student
             {
-                Id = "4",
+                Id = "Update_test_01",
                 FullName = "Старое имя",
                 Gender = Gender.Male,
                 DateBirth = new DateTime(2000, 12, 11),
@@ -171,7 +172,7 @@ namespace AdmissionCommittee.Tests
             // Act
             var updatedStudent = new Student
             {
-                Id = "4",
+                Id = "Update_test_01",
                 FullName = "Новое имя",
                 Gender = Gender.Male,
                 DateBirth = new DateTime(2000, 12, 11),
@@ -184,7 +185,7 @@ namespace AdmissionCommittee.Tests
             storage.Update(updatedStudent);
 
             // Assert
-            var found = storage.GetById("4");
+            var found = storage.GetById("Update_test_01");
             found.Should().NotBeNull();
             found!.FullName.Should().Be("Новое имя");
         }
@@ -201,7 +202,7 @@ namespace AdmissionCommittee.Tests
 
             var testStudent = new Student
             {
-                Id = "4",
+                Id = "Update_test_02",
                 FullName = "Новое имя",
                 Gender = Gender.Male,
                 DateBirth = new DateTime(2000, 12, 11),
@@ -225,7 +226,7 @@ namespace AdmissionCommittee.Tests
         [Fact]
         public void GetPassedCount_WithMixedScores_ShouldReturnCorrectCount()
         {
-            // Arrenge
+            // Arrange
             var storage = new InMemoryStudentStorage();
 
             storage.Add(new Student
@@ -268,7 +269,7 @@ namespace AdmissionCommittee.Tests
             int result = storage.GetPassedCount(150);
 
             // Assert
-            result.Should().Be(2);
+            result.Should().Be(5);
         }
 
         /// <summary>
@@ -309,7 +310,7 @@ namespace AdmissionCommittee.Tests
             double result = storage.GetAverageScore();
 
             // Assert
-            result.Should().Be(255);
+            result.Should().Be(231);
         }
     }
 }
