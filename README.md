@@ -3,7 +3,10 @@
 
 ТГ: [@Dianabolov]https://t.me/Dianabolov)
 # upd:26.04.2026
-Задание: написание Unit-тестов для классов InMemoryStudentStorage и AdmissionService
+Задание: написание Unit-тестов
+
+Написал Unit-тесты для классов InMemoryStudentStorage и AdmissionService.
+
 
 upd:06.04.2026
 Задание: создание собственного nuget-пакета
